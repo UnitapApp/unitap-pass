@@ -91,4 +91,33 @@ describe("Batch Sale", async () => {
     expect(await unitapPass.balanceOf(user1.address)).to.equal(190);
     expect(await unitapPassBatchSale.totalSoldCount()).to.equal(200);
   });
+
+  it("should get total sold value", async () => {
+    expect(await unitapPassBatchSale.totalSoldValue()).to.equal(
+      ethers.utils.parseEther("2")
+    );
+  });
+
+  it("should be able to withdraw funds", async () => {
+    const adminBalanceBefore = await ethers.provider.getBalance(
+      adminUnitapPassBatchSale.address
+    );
+    // withdraw funds
+    await unitapPassBatchSale
+      .connect(adminUnitapPassBatchSale)
+      .withdrawETH(
+        ethers.utils.parseEther("2"),
+        adminUnitapPassBatchSale.address
+      );
+
+    // get balance of admin after withdraw
+    const adminBalanceAfter = await ethers.provider.getBalance(
+      adminUnitapPassBatchSale.address
+    );
+
+    // check that admin balance increased
+    expect(adminBalanceAfter).to.be.gt(
+      adminBalanceBefore.add(ethers.utils.parseEther("1.99"))
+    );
+  });
 });

@@ -12,8 +12,12 @@ struct Batch {
 
 contract UnitapPassBatchSale is Ownable {
     uint32 public constant MAX_SALE_COUNT = 2000;
+
     address unitapPass;
+
     uint32 public totalSoldCount;
+    uint256 public totalSoldValue;
+
     Batch[] public batches;
 
     constructor(address unitapPass_) Ownable() {
@@ -22,6 +26,7 @@ contract UnitapPassBatchSale is Ownable {
 
     event StartBatch(uint32 batchSize, uint256 price, uint256 batchIndex);
     event MultiMint(uint256 batchIndex, address to, uint32 count);
+    event WithdrawETH(uint256 amount, address to);
 
     error InvalidBatchSize();
     error CurrentBatchNotSoldOut();
@@ -58,7 +63,18 @@ contract UnitapPassBatchSale is Ownable {
 
         batch.soldCount += count;
         totalSoldCount += count;
+        totalSoldValue += batch.price * count;
+
+        // refund extra ETH
+        if (msg.value > batch.price * count) {
+            payable(msg.sender).transfer(msg.value - batch.price * count);
+        }
 
         emit MultiMint(batches.length - 1, to, count);
+    }
+
+    function withdrawETH(uint256 amount, address to) public onlyOwner {
+        payable(to).transfer(amount);
+        emit WithdrawETH(amount, to);
     }
 }
