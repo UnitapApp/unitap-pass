@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.9;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interfaces/IUnitapPass.sol";
 
 struct Batch {
@@ -9,13 +10,13 @@ struct Batch {
     uint256 price;
 }
 
-contract UnitapPassBatchSale {
+contract UnitapPassBatchSale is Ownable {
     uint32 public constant MAX_SALE_COUNT = 2000;
     address unitapPass;
     uint32 public totalSoldCount;
     Batch[] public batches;
 
-    constructor(address unitapPass_) {
+    constructor(address unitapPass_) Ownable() {
         unitapPass = unitapPass_;
     }
 
@@ -27,7 +28,7 @@ contract UnitapPassBatchSale {
     error CurrentBatchSoldOut();
     error InsufficientFunds();
 
-    function startBatch(uint32 batchSize, uint256 price) public {
+    function startBatch(uint32 batchSize, uint256 price) public onlyOwner {
         if (totalSoldCount + batchSize > MAX_SALE_COUNT) {
             revert InvalidBatchSize();
         }

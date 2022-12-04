@@ -8,3 +8,18 @@ export async function deployUnitapPass(admin: SignerWithAddress) {
 
   return unitapPass;
 }
+
+export async function deployUnitapBatchSale(
+  admin: SignerWithAddress,
+  unitapPassAddress: string
+) {
+  const UnitapPassBatchSaleFactory = await ethers.getContractFactory(
+    "UnitapPassBatchSale"
+  );
+  const unitapPassBatchSale = await UnitapPassBatchSaleFactory.connect(
+    admin
+  ).deploy(unitapPassAddress);
+  await unitapPassBatchSale.deployed();
+
+  return unitapPassBatchSale;
+}
