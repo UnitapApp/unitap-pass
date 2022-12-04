@@ -20,6 +20,8 @@ contract UnitapPassBatchSale {
     }
 
     event StartBatch(uint32 batchSize, uint256 price, uint256 batchIndex);
+    event MultiMint(uint256 batchIndex, address to, uint32 count);
+
     error InvalidBatchSize();
     error CurrentBatchNotSoldOut();
     error CurrentBatchSoldOut();
@@ -55,5 +57,7 @@ contract UnitapPassBatchSale {
 
         batch.soldCount += count;
         totalSoldCount += count;
+
+        emit MultiMint(batches.length - 1, to, count);
     }
 }
