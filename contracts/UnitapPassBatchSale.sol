@@ -30,17 +30,12 @@ contract UnitapPassBatchSale is Ownable {
     event WithdrawETH(uint256 amount, address to);
 
     error InvalidBatchSize();
-    error CurrentBatchNotSoldOut();
     error CurrentBatchSoldOut();
     error InsufficientFunds();
 
     function startBatch(uint32 batchSize_) external onlyOwner {
         if (totalSoldCount + batchSize_ > MAX_SALE_COUNT) {
             revert InvalidBatchSize();
-        }
-
-        if (batchSoldCount < batchSize) {
-            revert CurrentBatchNotSoldOut();
         }
 
         batchSize = batchSize_;

@@ -46,15 +46,6 @@ describe("Batch Sale", async () => {
     expect(await unitapPass.balanceOf(user1.address)).to.equal(90);
   });
 
-  it("should not be able to start new batch while one is active", async () => {
-    await expect(
-      unitapPassBatchSale.connect(adminUnitapPassBatchSale).startBatch(100)
-    ).to.be.revertedWithCustomError(
-      unitapPassBatchSale,
-      "CurrentBatchNotSoldOut"
-    );
-  });
-
   it("should mint 10 tokens for user 2", async () => {
     // call multiMint function on batch sale contract and send 10*0.01 ether to it
     await unitapPassBatchSale
