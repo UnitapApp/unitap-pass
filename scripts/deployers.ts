@@ -11,14 +11,15 @@ export async function deployUnitapPass(admin: SignerWithAddress) {
 
 export async function deployUnitapBatchSale(
   admin: SignerWithAddress,
-  unitapPassAddress: string
+  unitapPassAddress: string,
+  safeAddress: string
 ) {
   const UnitapPassBatchSaleFactory = await ethers.getContractFactory(
     "UnitapPassBatchSale"
   );
   const unitapPassBatchSale = await UnitapPassBatchSaleFactory.connect(
     admin
-  ).deploy(unitapPassAddress);
+  ).deploy(unitapPassAddress, safeAddress);
   await unitapPassBatchSale.deployed();
 
   return unitapPassBatchSale;

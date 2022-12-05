@@ -13,15 +13,17 @@ struct Batch {
 contract UnitapPassBatchSale is Ownable {
     uint32 public constant MAX_SALE_COUNT = 2000;
 
-    address unitapPass;
+    address public unitapPass;
+    address public safe; // all funds will be withdrawn to this address
 
     uint32 public totalSoldCount;
     uint256 public totalSoldValue;
 
     Batch[] public batches;
 
-    constructor(address unitapPass_) Ownable() {
+    constructor(address unitapPass_, address safe_) Ownable() {
         unitapPass = unitapPass_;
+        safe = safe_;
     }
 
     event StartBatch(uint32 batchSize, uint256 price, uint256 batchIndex);
@@ -73,8 +75,9 @@ contract UnitapPassBatchSale is Ownable {
         emit MultiMint(batches.length - 1, to, count);
     }
 
-    function withdrawETH(uint256 amount, address to) public onlyOwner {
-        payable(to).transfer(amount);
-        emit WithdrawETH(amount, to);
+    function withdrawETH() external {
+        uint256 amount = address(this).balance;
+        emit WithdrawETH(amount, safe);
+        payable(safe).transfer(amount);
     }
 }

@@ -12,14 +12,16 @@ describe("Batch Sale", async () => {
   let adminUnitapPassBatchSale: SignerWithAddress;
   let user1: SignerWithAddress;
   let user2: SignerWithAddress;
+  let safe: SignerWithAddress;
 
   before(async () => {
-    [adminUnitapPass, adminUnitapPassBatchSale, user1, user2] =
+    [adminUnitapPass, adminUnitapPassBatchSale, user1, user2, safe] =
       await ethers.getSigners();
     unitapPass = await deployUnitapPass(adminUnitapPass);
     unitapPassBatchSale = await deployUnitapBatchSale(
       adminUnitapPassBatchSale,
-      unitapPass.address
+      unitapPass.address,
+      safe.address
     );
   });
 
@@ -99,25 +101,17 @@ describe("Batch Sale", async () => {
   });
 
   it("should be able to withdraw funds", async () => {
-    const adminBalanceBefore = await ethers.provider.getBalance(
-      adminUnitapPassBatchSale.address
-    );
+    const safeBalanceBefore = await ethers.provider.getBalance(safe.address);
+
     // withdraw funds
-    await unitapPassBatchSale
-      .connect(adminUnitapPassBatchSale)
-      .withdrawETH(
-        ethers.utils.parseEther("2"),
-        adminUnitapPassBatchSale.address
-      );
+    await unitapPassBatchSale.connect(adminUnitapPassBatchSale).withdrawETH();
 
     // get balance of admin after withdraw
-    const adminBalanceAfter = await ethers.provider.getBalance(
-      adminUnitapPassBatchSale.address
-    );
+    const safeBalanceAfter = await ethers.provider.getBalance(safe.address);
 
     // check that admin balance increased
-    expect(adminBalanceAfter).to.be.gt(
-      adminBalanceBefore.add(ethers.utils.parseEther("1.99"))
+    expect(safeBalanceAfter).to.be.eq(
+      safeBalanceBefore.add(ethers.utils.parseEther("2"))
     );
   });
 });
