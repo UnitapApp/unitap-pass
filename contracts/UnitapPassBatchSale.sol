@@ -49,7 +49,7 @@ contract UnitapPassBatchSale is Ownable {
         emit StartBatch(batchSize);
     }
 
-    function multiMint(uint32 count, address to) public payable {
+    function multiMint(uint32 count, address to) external payable {
         if (batchSoldCount + count > batchSize) revert CurrentBatchSoldOut();
 
         uint256 totalValue = price * count;
