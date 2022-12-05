@@ -11,8 +11,8 @@ contract UnitapPassBatchSale is Ownable {
     address public safe; // all funds will be withdrawn to this address
 
     uint32 public totalSoldCount;
-    uint32 batchSize;
-    uint32 batchSoldCount;
+    uint32 public batchSize;
+    uint32 public batchSoldCount;
     uint256 public price;
 
     constructor(
