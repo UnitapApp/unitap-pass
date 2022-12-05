@@ -21,7 +21,8 @@ describe("Batch Sale", async () => {
     unitapPassBatchSale = await deployUnitapBatchSale(
       adminUnitapPassBatchSale,
       unitapPass.address,
-      safe.address
+      safe.address,
+      ethers.utils.parseEther("0.01")
     );
   });
 
@@ -32,9 +33,7 @@ describe("Batch Sale", async () => {
   });
 
   it("should start a batch with size 100", async () => {
-    await unitapPassBatchSale
-      .connect(adminUnitapPassBatchSale)
-      .startBatch(100, ethers.utils.parseEther("0.01"));
+    await unitapPassBatchSale.connect(adminUnitapPassBatchSale).startBatch(100);
   });
 
   it("should mint 90 tokens for user 1", async () => {
@@ -49,9 +48,7 @@ describe("Batch Sale", async () => {
 
   it("should not be able to start new batch while one is active", async () => {
     await expect(
-      unitapPassBatchSale
-        .connect(adminUnitapPassBatchSale)
-        .startBatch(100, ethers.utils.parseEther("0.01"))
+      unitapPassBatchSale.connect(adminUnitapPassBatchSale).startBatch(100)
     ).to.be.revertedWithCustomError(
       unitapPassBatchSale,
       "CurrentBatchNotSoldOut"
@@ -78,9 +75,7 @@ describe("Batch Sale", async () => {
   });
 
   it("should be able to start new batch", async () => {
-    await unitapPassBatchSale
-      .connect(adminUnitapPassBatchSale)
-      .startBatch(100, ethers.utils.parseEther("0.01"));
+    await unitapPassBatchSale.connect(adminUnitapPassBatchSale).startBatch(100);
   });
 
   it("should be able to mint 100 tokens for user 1", async () => {
@@ -92,12 +87,6 @@ describe("Batch Sale", async () => {
     // check that user 1 has 100 tokens
     expect(await unitapPass.balanceOf(user1.address)).to.equal(190);
     expect(await unitapPassBatchSale.totalSoldCount()).to.equal(200);
-  });
-
-  it("should get total sold value", async () => {
-    expect(await unitapPassBatchSale.totalSoldValue()).to.equal(
-      ethers.utils.parseEther("2")
-    );
   });
 
   it("should be able to withdraw funds", async () => {

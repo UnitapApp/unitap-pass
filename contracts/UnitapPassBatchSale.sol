@@ -7,7 +7,6 @@ import "./interfaces/IUnitapPass.sol";
 struct Batch {
     uint32 batchSize;
     uint32 soldCount;
-    uint256 price;
 }
 
 contract UnitapPassBatchSale is Ownable {
@@ -17,16 +16,21 @@ contract UnitapPassBatchSale is Ownable {
     address public safe; // all funds will be withdrawn to this address
 
     uint32 public totalSoldCount;
-    uint256 public totalSoldValue;
+    uint256 public price;
 
     Batch[] public batches;
 
-    constructor(address unitapPass_, address safe_) Ownable() {
+    constructor(
+        address unitapPass_,
+        address safe_,
+        uint256 price_
+    ) Ownable() {
         unitapPass = unitapPass_;
         safe = safe_;
+        price = price_;
     }
 
-    event StartBatch(uint32 batchSize, uint256 price, uint256 batchIndex);
+    event StartBatch(uint32 batchSize, uint256 batchIndex);
     event MultiMint(uint256 batchIndex, address to, uint32 count);
     event WithdrawETH(uint256 amount, address to);
 
@@ -35,7 +39,7 @@ contract UnitapPassBatchSale is Ownable {
     error CurrentBatchSoldOut();
     error InsufficientFunds();
 
-    function startBatch(uint32 batchSize, uint256 price) public onlyOwner {
+    function startBatch(uint32 batchSize) external onlyOwner {
         if (totalSoldCount + batchSize > MAX_SALE_COUNT) {
             revert InvalidBatchSize();
         }
@@ -48,8 +52,8 @@ contract UnitapPassBatchSale is Ownable {
             }
         }
 
-        batches.push(Batch(batchSize, 0, price));
-        emit StartBatch(batchSize, price, batches.length - 1);
+        batches.push(Batch(batchSize, 0));
+        emit StartBatch(batchSize, batches.length - 1);
     }
 
     function multiMint(uint32 count, address to) public payable {
@@ -57,7 +61,10 @@ contract UnitapPassBatchSale is Ownable {
 
         if (batch.soldCount + count > batch.batchSize)
             revert CurrentBatchSoldOut();
-        if (msg.value < batch.price * count) revert InsufficientFunds();
+
+        uint256 totalValue = price * count;
+
+        if (msg.value < totalValue) revert InsufficientFunds();
 
         for (uint32 i = 0; i < count; i++) {
             IUnitapPass(unitapPass).safeMint(to);
@@ -65,11 +72,10 @@ contract UnitapPassBatchSale is Ownable {
 
         batch.soldCount += count;
         totalSoldCount += count;
-        totalSoldValue += batch.price * count;
 
         // refund extra ETH
-        if (msg.value > batch.price * count) {
-            payable(msg.sender).transfer(msg.value - batch.price * count);
+        if (msg.value > totalValue) {
+            payable(msg.sender).transfer(msg.value - totalValue);
         }
 
         emit MultiMint(batches.length - 1, to, count);
@@ -77,7 +83,7 @@ contract UnitapPassBatchSale is Ownable {
 
     function withdrawETH() external {
         uint256 amount = address(this).balance;
-        emit WithdrawETH(amount, safe);
         payable(safe).transfer(amount);
+        emit WithdrawETH(amount, safe);
     }
 }
