@@ -27,6 +27,10 @@ contract UnitapPass is ERC721, ERC721URIStorage, AccessControl {
         _setTokenURI(tokenId, Strings.toString(tokenId));
     }
 
+    function tokenIdCounter() public view returns (uint256 idCounter) {
+        idCounter = _tokenIdCounter.current();
+    }
+
     // The following functions are overrides required by Solidity.
 
     function _burn(uint256 tokenId)
